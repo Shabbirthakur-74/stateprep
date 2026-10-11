@@ -13,6 +13,7 @@ enum Permission: string
     case Materials = 'manage-materials';
     case Homepage = 'manage-homepage';
     case Notices = 'manage-notices';
+    case Doubts = 'manage-doubts';
     case Students = 'manage-students';
     case Settings = 'manage-settings';
 
@@ -25,6 +26,7 @@ enum Permission: string
             self::Materials => 'Study Material',
             self::Homepage => 'Homepage',
             self::Notices => 'Notice Board',
+            self::Doubts => 'Doubts',
             self::Students => 'Students',
             self::Settings => 'Settings',
         };
@@ -39,6 +41,7 @@ enum Permission: string
             self::Materials => 'Upload and publish notes, PDFs and links.',
             self::Homepage => 'Choose the exams, test series and study material shown on the homepage, and edit its headings.',
             self::Notices => 'Post exam notifications and announcements on the notice board.',
+            self::Doubts => "Read and answer students' doubts, and close them.",
             self::Students => 'View student accounts and their results, and delete accounts.',
             self::Settings => 'Change site settings such as result cut-offs.',
         };

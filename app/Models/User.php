@@ -63,6 +63,11 @@ class User extends Authenticatable
         return $this->hasMany(TestAttempt::class);
     }
 
+    public function doubts(): HasMany
+    {
+        return $this->hasMany(Doubt::class);
+    }
+
     /**
      * Study material the student saved to "My Library".
      */

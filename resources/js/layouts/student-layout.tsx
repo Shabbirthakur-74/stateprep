@@ -20,6 +20,7 @@ import {
     ChevronDown,
     CircleHelp,
     ClipboardList,
+    Crown,
     FileStack,
     Gift,
     GraduationCap,
@@ -115,6 +116,7 @@ export function useComingSoon() {
 }
 
 function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
+    const { doubtsUnread } = usePage<SharedData & { doubtsUnread: number }>().props;
     return (
         <nav className="space-y-3" aria-label="Student">
             {navGroups.map((group) => (
@@ -138,6 +140,11 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
                                     >
                                         <Icon className="size-4 shrink-0" />
                                         {title}
+                                        {name === 'student.doubts' && doubtsUnread > 0 && (
+                                            <span className="ml-auto rounded-full bg-red-500 px-1.5 text-[11px] font-semibold text-white">
+                                                {doubtsUnread}
+                                            </span>
+                                        )}
                                     </Link>
                                 </li>
                             );
@@ -154,7 +161,7 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
  * and the colour-grouped sidebar.
  */
 export default function StudentLayout({ title, children }: { title: string; children: ReactNode }) {
-    const { auth, name } = usePage<SharedData>().props;
+    const { auth, name, doubtsUnread } = usePage<SharedData & { doubtsUnread: number }>().props;
     const [comingSoon, setComingSoon] = useState<string | null>(null);
     const [menuOpen, setMenuOpen] = useState(false);
     const [confirmLogout, setConfirmLogout] = useState(false);
@@ -206,13 +213,29 @@ export default function StudentLayout({ title, children }: { title: string; chil
 
                         <div className="ml-auto flex items-center gap-2 sm:gap-3">
                             <Button
+                                size="sm"
+                                className="bg-linear-to-r from-amber-500 to-orange-500 font-semibold text-white shadow-sm hover:from-amber-600 hover:to-orange-600"
+                                aria-label="Buy Pass"
+                                asChild
+                            >
+                                <Link href={route('student.pass')}>
+                                    <Crown className="size-4" /> <span className="hidden sm:inline">Buy Pass</span>
+                                </Link>
+                            </Button>
+                            <Button
                                 variant="outline"
                                 size="sm"
                                 className="hidden border-indigo-200 text-indigo-700 sm:inline-flex dark:text-indigo-300"
                                 asChild
                             >
-                                <Link href={route('student.doubts')}>
+                                <Link href={route('student.doubts')} className="relative">
                                     <CircleHelp className="size-4" /> Ask Doubt
+                                    {doubtsUnread > 0 && (
+                                        <span
+                                            className="absolute -top-1 -right-1 size-2.5 rounded-full bg-red-500"
+                                            aria-label="New answers to your doubts"
+                                        />
+                                    )}
                                 </Link>
                             </Button>
                             <button

@@ -12,6 +12,7 @@ import {
     GraduationCap,
     Layers,
     Library,
+    MessageSquareText,
     ShieldCheck,
     UserPlus,
     Users,
@@ -24,10 +25,11 @@ const breadcrumbs: BreadcrumbItem[] = [{ title: 'Admin dashboard', href: '/admin
 interface Props {
     stats: { students: number; admins: number; newThisWeek: number; quizzesTaken: number; testsTaken: number };
     content: { exams: number; subjects: number; questions: number; tests: number; series: number; materials: number };
+    openDoubts: number | null;
     recentStudents: { id: number; name: string; email: string; created_at: string }[];
 }
 
-export default function AdminDashboard({ stats, content, recentStudents }: Props) {
+export default function AdminDashboard({ stats, content, openDoubts, recentStudents }: Props) {
     const { auth } = usePage<SharedData>().props;
     const can = (permission: Permission | 'manage-team') =>
         permission === 'manage-team' ? auth.user.role === 'super_admin' : auth.user.permissions.includes(permission);
@@ -76,6 +78,13 @@ export default function AdminDashboard({ stats, content, recentStudents }: Props
             href: route('admin.materials.index'),
             icon: BookOpenText,
             permission: 'manage-materials',
+        },
+        {
+            label: 'Doubts',
+            detail: openDoubts ? `${openDoubts} waiting for an answer` : 'All answered',
+            href: route('admin.doubts.index'),
+            icon: MessageSquareText,
+            permission: 'manage-doubts',
         },
         { label: 'Notice Board', detail: 'Notifications', href: route('admin.notices.index'), icon: Bell, permission: 'manage-notices' },
         { label: 'Team & Access', detail: `${stats.admins} members`, href: route('admin.team.index'), icon: ShieldCheck, permission: 'manage-team' },

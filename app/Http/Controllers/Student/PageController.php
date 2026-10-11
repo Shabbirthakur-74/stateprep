@@ -22,7 +22,6 @@ class PageController extends Controller
      */
     public const COMING_SOON = [
         'personalised-tests' => ['Personalised Tests', 'Tests built around your weak topics and recent mistakes.'],
-        'doubts' => ['Doubts', 'Ask questions about any topic or test question and get answers from mentors.'],
         'live-session' => ['1-on-1 Live Session', 'Book a one-on-one session with a mentor for guidance on your preparation.'],
     ];
 

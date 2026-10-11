@@ -8,7 +8,7 @@ test('super admins can open every admin section', function (string $url) {
     $this->actingAs(User::factory()->superAdmin()->create())->get($url)->assertOk();
 })->with([
     '/admin/team', '/admin/team/create', '/admin/exams', '/admin/subjects', '/admin/questions', '/admin/questions/import',
-    '/admin/mock-tests', '/admin/test-series', '/admin/materials', '/admin/homepage', '/admin/notices', '/admin/students', '/admin/settings',
+    '/admin/mock-tests', '/admin/test-series', '/admin/materials', '/admin/homepage', '/admin/doubts', '/admin/notices', '/admin/students', '/admin/settings',
 ]);
 
 test('team members only reach the sections they were given', function () {

@@ -41,7 +41,7 @@ test('every student screen loads', function (string $url, string $component) {
     ['/student/attempted-tests', 'student/attempted-tests'],
     ['/student/performance', 'student/performance'],
     ['/student/personalised-tests', 'student/coming-soon'],
-    ['/student/doubts', 'student/coming-soon'],
+    ['/student/doubts', 'student/doubts/index'],
     ['/student/live-session', 'student/coming-soon'],
 ]);
 
@@ -85,8 +85,8 @@ test('test series and study material show only published items', function () {
 });
 
 test('coming soon pages say what is coming', function () {
-    $this->actingAs(User::factory()->create())->get('/student/doubts')
-        ->assertInertia(fn ($page) => $page->where('title', 'Doubts'));
+    $this->actingAs(User::factory()->create())->get('/student/live-session')
+        ->assertInertia(fn ($page) => $page->where('title', '1-on-1 Live Session'));
 });
 
 test('admins cannot open student screens', function () {

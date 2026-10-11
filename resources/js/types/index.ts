@@ -34,6 +34,7 @@ export type Permission =
     | 'manage-materials'
     | 'manage-homepage'
     | 'manage-notices'
+    | 'manage-doubts'
     | 'manage-students'
     | 'manage-settings';
 

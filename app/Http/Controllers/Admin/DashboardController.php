@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\Role;
 use App\Http\Controllers\Controller;
+use App\Models\Doubt;
 use App\Models\Exam;
 use App\Models\MockTest;
 use App\Models\Question;
@@ -36,6 +37,7 @@ class DashboardController extends Controller
                 'series' => TestSeries::count(),
                 'materials' => StudyMaterial::count(),
             ],
+            'openDoubts' => request()->user()->can('manage-doubts') ? Doubt::where('status', Doubt::OPEN)->count() : null,
             'recentStudents' => User::where('role', Role::Student)
                 ->latest()->limit(5)->get(['id', 'name', 'email', 'created_at']),
         ]);

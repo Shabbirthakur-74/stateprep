@@ -2,14 +2,18 @@
 
 use App\Enums\Role;
 use App\Http\Controllers\Admin;
+use App\Http\Controllers\DoubtImageController;
 use App\Http\Controllers\ExamPageController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LegalController;
+use App\Http\Controllers\Student;
 use App\Http\Controllers\Student\CheckoutController;
 use App\Http\Controllers\Student\PageController as StudentPageController;
+use App\Http\Controllers\Student\PassController;
 use App\Http\Controllers\Student\QuizController;
 use App\Http\Controllers\Student\StudyMaterialController;
 use App\Http\Controllers\Student\TestController;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
@@ -25,6 +29,10 @@ Route::get('privacy', [LegalController::class, 'show'])->defaults('page', 'priva
 Route::get('user-policy', [LegalController::class, 'show'])->defaults('page', 'user-policy')->name('user-policy');
 
 Route::middleware('auth')->group(function () {
+    // Photos on doubts: for the student who asked and the team (checked in the controller).
+    Route::get('doubts/{doubt}/image', [DoubtImageController::class, 'doubt'])->name('doubts.image');
+    Route::get('doubt-replies/{reply}/image', [DoubtImageController::class, 'reply'])->name('doubts.reply-image');
+
     // Role-aware entry point: sends each user to their own dashboard.
     Route::get('dashboard', fn () => redirect()->route(auth()->user()->dashboardRoute()))
         ->name('dashboard');
@@ -46,6 +54,16 @@ Route::middleware('auth')->group(function () {
         });
 
         Route::get('checkout/{exam:slug}', [CheckoutController::class, 'show'])->name('checkout');
+        Route::get('pass', [PassController::class, 'show'])->name('pass');
+        Route::get('pass/checkout/{plan}', [PassController::class, 'checkout'])->whereIn('plan', array_keys(Setting::PASS_PLANS))->name('pass.checkout');
+
+        Route::controller(Student\DoubtController::class)->prefix('doubts')->group(function () {
+            Route::get('/', 'index')->name('doubts');
+            Route::post('/', 'store')->name('doubts.store');
+            Route::get('{doubt}', 'show')->name('doubts.show');
+            Route::post('{doubt}/reply', 'reply')->name('doubts.reply');
+            Route::post('{doubt}/resolve', 'resolve')->name('doubts.resolve');
+        });
 
         Route::controller(StudyMaterialController::class)->prefix('study-material')->group(function () {
             Route::get('/', 'index')->name('study-material');
@@ -143,6 +161,13 @@ Route::middleware('auth')->group(function () {
             Route::put('homepage/cards/{card}', 'updateCard')->name('homepage.cards.update');
             Route::post('homepage/cards/{card}/move', 'moveCard')->name('homepage.cards.move');
             Route::delete('homepage/cards/{card}', 'destroyCard')->name('homepage.cards.destroy');
+        });
+
+        Route::middleware('can:manage-doubts')->controller(Admin\DoubtController::class)->group(function () {
+            Route::get('doubts', 'index')->name('doubts.index');
+            Route::get('doubts/{doubt}', 'show')->name('doubts.show');
+            Route::post('doubts/{doubt}/reply', 'reply')->name('doubts.reply');
+            Route::post('doubts/{doubt}/status', 'status')->name('doubts.status');
         });
 
         Route::middleware('can:manage-notices')->group(function () {

@@ -1,3 +1,4 @@
+import { AskDoubtLink } from '@/components/doubt-thread';
 import { Panel, Pill, ProgressBar } from '@/components/student-kit';
 import { Button } from '@/components/ui/button';
 import StudentLayout from '@/layouts/student-layout';
@@ -91,6 +92,7 @@ function Explanation({ question }: { question: Question }) {
         >
             <p className="font-semibold">{verdict}</p>
             {question.explanation && <p className="text-muted-foreground mt-1">{question.explanation}</p>}
+            <AskDoubtLink questionId={question.id} />
         </div>
     );
 }

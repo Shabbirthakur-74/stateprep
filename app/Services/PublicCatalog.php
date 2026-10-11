@@ -6,6 +6,7 @@ use App\Models\Exam;
 use App\Models\HomeCard;
 use App\Models\MockTest;
 use App\Models\Notice;
+use App\Models\Question;
 use App\Models\Quiz;
 use App\Models\StudyMaterial;
 use App\Models\Subject;
@@ -117,6 +118,32 @@ class PublicCatalog
             $material->description ?: 'Focused notes and revision material for quick, exam-ready preparation.',
             [$material->formatLabel(), 'Read Online', $material->is_free ? 'Free' : 'Premium'],
             'Explore Study Material',
+        ];
+    }
+
+    /**
+     * What the StatePrep360 Pass gives access to: everything published on the site, free and paid, across every
+     * active exam, plus the whole question bank for quizzes.
+     *
+     * @return array{exams: int, mocks: int, pyqs: int, series: int, materials: int, quizzes: int, questions: int, subjects: int, topics: int}
+     */
+    public static function passCounts(): array
+    {
+        $activeExam = fn ($q) => $q->where('is_active', true);
+        $tests = MockTest::where('is_published', true)->has('questions')->whereHas('exam', $activeExam)->get(['id', 'type']);
+        $subjects = Subject::whereHas('questions')->withCount(['topics' => fn ($q) => $q->whereHas('questions')])->get();
+
+        return [
+            'exams' => Exam::where('is_active', true)->count(),
+            'mocks' => $tests->where('type', 'mock')->count(),
+            'pyqs' => $tests->where('type', 'pyq')->count(),
+            'series' => TestSeries::where('is_published', true)
+                ->where(fn ($q) => $q->whereNull('exam_id')->orWhereHas('exam', $activeExam))->count(),
+            'materials' => StudyMaterial::available()->count(),
+            'quizzes' => Quiz::available()->count(),
+            'questions' => Question::count(),
+            'subjects' => $subjects->count(),
+            'topics' => (int) $subjects->sum('topics_count'),
         ];
     }
 

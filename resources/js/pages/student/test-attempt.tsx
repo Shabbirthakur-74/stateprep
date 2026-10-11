@@ -1,3 +1,4 @@
+import { AskDoubtLink } from '@/components/doubt-thread';
 import { ResultBadge, type ResultBands } from '@/components/result-badge';
 import { Panel, Pill } from '@/components/student-kit';
 import { Button } from '@/components/ui/button';
@@ -446,6 +447,7 @@ function Result({ attempt, questions, bySubject, bands }: Props) {
                         {q.explanation && (
                             <p className="text-muted-foreground mt-3 rounded-lg bg-slate-50 p-3 text-sm dark:bg-slate-800/60">{q.explanation}</p>
                         )}
+                        <AskDoubtLink questionId={q.id} />
                     </Panel>
                 ))}
                 {visible.length === 0 && <p className="text-muted-foreground text-sm">Nothing here.</p>}
