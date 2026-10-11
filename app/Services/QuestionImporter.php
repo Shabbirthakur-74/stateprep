@@ -24,6 +24,9 @@ use Illuminate\Support\Str;
  */
 class QuestionImporter
 {
+    /** PHP's current default escape character, passed explicitly: PHP 8.4 warns when it is left out. */
+    public const ESCAPE = '\\';
+
     public const COLUMNS = ['subject', 'topic', 'question', 'option_a', 'option_b', 'option_c', 'option_d', 'correct', 'explanation', 'difficulty'];
 
     /** What the admin may choose for each status; the first one is the default. */
@@ -42,7 +45,7 @@ class QuestionImporter
     public function preview(string $path): array
     {
         $handle = fopen($path, 'r');
-        $header = array_map(fn ($h) => Str::snake(trim(preg_replace('/^\xEF\xBB\xBF/', '', (string) $h))), fgetcsv($handle) ?: []);
+        $header = array_map(fn ($h) => Str::snake(trim(preg_replace('/^\xEF\xBB\xBF/', '', (string) $h))), fgetcsv($handle, null, ',', '"', self::ESCAPE) ?: []);
 
         $missing = array_diff(['subject', 'question', 'option_a', 'option_b', 'option_c', 'option_d', 'correct'], $header);
         if ($missing) {
@@ -56,7 +59,7 @@ class QuestionImporter
         $rows = [];
         $line = 1;
 
-        while (($cells = fgetcsv($handle)) !== false) {
+        while (($cells = fgetcsv($handle, null, ',', '"', self::ESCAPE)) !== false) {
             $line++;
             if (count(array_filter($cells, fn ($v) => trim((string) $v) !== '')) === 0) {
                 continue;

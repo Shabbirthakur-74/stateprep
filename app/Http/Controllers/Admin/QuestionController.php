@@ -96,8 +96,8 @@ class QuestionController extends Controller
     {
         return response()->streamDownload(function () {
             $out = fopen('php://output', 'w');
-            fputcsv($out, QuestionImporter::COLUMNS);
-            fputcsv($out, ['Himachal Pradesh GK', 'Districts', 'How many districts does Himachal Pradesh have?', '10', '11', '12', '13', 'C', 'Himachal Pradesh has 12 districts.', 'easy']);
+            fputcsv($out, QuestionImporter::COLUMNS, ',', '"', QuestionImporter::ESCAPE);
+            fputcsv($out, ['Himachal Pradesh GK', 'Districts', 'How many districts does Himachal Pradesh have?', '10', '11', '12', '13', 'C', 'Himachal Pradesh has 12 districts.', 'easy'], ',', '"', QuestionImporter::ESCAPE);
             fclose($out);
         }, 'question-import-template.csv', ['Content-Type' => 'text/csv']);
     }
