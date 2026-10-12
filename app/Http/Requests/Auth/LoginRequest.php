@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Rules\ValidEmail;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -27,10 +28,19 @@ class LoginRequest extends FormRequest
      */
     public function rules(): array
     {
+        // The same checks, with the same messages, as the login forms run in the browser (auth-validation.ts).
         return [
-            'email' => ['required', 'string', 'email'],
+            'email' => [new ValidEmail],
             'password' => ['required', 'string'],
         ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return ['password.required' => 'Enter your password.'];
     }
 
     /**

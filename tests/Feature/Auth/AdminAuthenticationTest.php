@@ -37,8 +37,8 @@ test('registration always creates a student even if a role is submitted', functi
     $this->post('/register', [
         'name' => 'Sneaky',
         'email' => 'sneaky@example.com',
-        'password' => 'password',
-        'password_confirmation' => 'password',
+        'password' => 'Password@12',
+        'password_confirmation' => 'Password@12',
         'role' => 'admin',
     ]);
 

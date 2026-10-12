@@ -54,6 +54,8 @@ Route::middleware('auth')->group(function () {
         });
 
         Route::get('checkout/{exam:slug}', [CheckoutController::class, 'show'])->name('checkout');
+        Route::get('settings', [Student\ProfileController::class, 'edit'])->name('settings');
+        Route::put('profile', [Student\ProfileController::class, 'update'])->name('profile.update');
         Route::get('pass', [PassController::class, 'show'])->name('pass');
         Route::get('pass/checkout/{plan}', [PassController::class, 'checkout'])->whereIn('plan', array_keys(Setting::PASS_PLANS))->name('pass.checkout');
 

@@ -1,4 +1,6 @@
 import AppLogoIcon from '@/components/app-logo-icon';
+import { ProfileDialog } from '@/components/profile-dialog';
+import { type ProfileOptions } from '@/components/profile-form';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
@@ -95,11 +97,11 @@ const navGroups: { label: string; tone: string; links: NavLink[] }[] = [
     },
 ];
 
-/** Account menu entries that are not built yet; each opens the "coming soon" popup. */
-const accountLinks: { title: string; icon: LucideIcon }[] = [
+/** Account menu entries: a page when it exists, otherwise the "coming soon" popup. */
+const accountLinks: { title: string; icon: LucideIcon; route?: string }[] = [
     { title: 'Refer & Earn', icon: Gift },
     { title: 'My Transactions', icon: ReceiptText },
-    { title: 'Settings', icon: Settings },
+    { title: 'Settings', icon: Settings, route: 'student.settings' },
 ];
 
 // A tinted background a shade darker than the menu panel, so each entry reads as its own button.
@@ -161,7 +163,7 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
  * and the colour-grouped sidebar.
  */
 export default function StudentLayout({ title, children }: { title: string; children: ReactNode }) {
-    const { auth, name, doubtsUnread } = usePage<SharedData & { doubtsUnread: number }>().props;
+    const { auth, name, doubtsUnread, profilePrompt } = usePage<SharedData & { doubtsUnread: number; profilePrompt: ProfileOptions | null }>().props;
     const [comingSoon, setComingSoon] = useState<string | null>(null);
     const [menuOpen, setMenuOpen] = useState(false);
     const [confirmLogout, setConfirmLogout] = useState(false);
@@ -264,11 +266,19 @@ export default function StudentLayout({ title, children }: { title: string; chil
                                         <span className="text-muted-foreground block truncate text-xs">{auth.user.email}</span>
                                     </DropdownMenuLabel>
                                     <DropdownMenuSeparator />
-                                    {accountLinks.map(({ title, icon: Icon }) => (
-                                        <DropdownMenuItem key={title} className={menuItemClass} onSelect={() => setComingSoon(title)}>
-                                            <Icon /> {title}
-                                        </DropdownMenuItem>
-                                    ))}
+                                    {accountLinks.map(({ title, icon: Icon, route: name }) =>
+                                        name ? (
+                                            <DropdownMenuItem key={title} className={menuItemClass} asChild>
+                                                <Link href={route(name)}>
+                                                    <Icon /> {title}
+                                                </Link>
+                                            </DropdownMenuItem>
+                                        ) : (
+                                            <DropdownMenuItem key={title} className={menuItemClass} onSelect={() => setComingSoon(title)}>
+                                                <Icon /> {title}
+                                            </DropdownMenuItem>
+                                        ),
+                                    )}
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem
                                         className="cursor-pointer rounded-md bg-red-600 text-white focus:bg-red-700 focus:text-white [&_svg]:text-white"
@@ -298,6 +308,9 @@ export default function StudentLayout({ title, children }: { title: string; chil
                     </div>
                 </SheetContent>
             </Sheet>
+
+            {/* New students fill in their details before anything else. */}
+            {profilePrompt && <ProfileDialog options={profilePrompt} />}
 
             <Dialog open={confirmLogout} onOpenChange={setConfirmLogout}>
                 <DialogContent className="sm:max-w-sm">

@@ -50,9 +50,12 @@ class PageController extends Controller
         ]);
     }
 
-    public function exams(): Response
+    public function exams(Request $request): Response
     {
-        return Inertia::render('student/exams', ['exams' => StudentCatalog::exams()]);
+        return Inertia::render('student/exams', [
+            'exams' => StudentCatalog::exams(),
+            'targets' => $request->user()->targetExams()->orderBy('name')->pluck('name'),
+        ]);
     }
 
     public function library(Request $request): Response

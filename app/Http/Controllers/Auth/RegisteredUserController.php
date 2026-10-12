@@ -6,12 +6,15 @@ use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\HomeController;
 use App\Models\User;
+use App\Rules\PasswordConfirmation;
+use App\Rules\PersonName;
+use App\Rules\StrongPassword;
+use App\Rules\ValidEmail;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 
 class RegisteredUserController extends Controller
@@ -31,10 +34,15 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // The same checks, with the same messages, as the sign-up form runs in the browser (auth-validation.ts).
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'name' => [new PersonName],
+            'email' => [new ValidEmail, 'lowercase', 'unique:'.User::class],
+            'password' => [new StrongPassword],
+            'password_confirmation' => [new PasswordConfirmation],
+        ], [
+            'email.lowercase' => 'Use lower-case letters in the email address.',
+            'email.unique' => 'An account with this email already exists. Log in instead.',
         ]);
 
         // `role` is deliberately not mass-assignable (so it can't be injected from the form), hence forceCreate.

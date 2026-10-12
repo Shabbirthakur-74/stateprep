@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\Role;
 use App\Http\Controllers\Controller;
+use App\Models\Doubt;
 use App\Models\Setting;
 use App\Models\User;
 use App\Services\StudentStats;
@@ -39,14 +40,40 @@ class StudentController extends Controller
         ]);
     }
 
-    public function show(User $student): Response
+    /**
+     * Everything about one student: their details and chosen exams, purchases, activity, and how they are doing
+     * subject by subject and topic by topic.
+     */
+    public function show(Request $request, User $student): Response
     {
         $stats = new StudentStats($student);
+        $profile = $student->profile;
+        $attempts = $stats->attempts();
 
         return Inertia::render('admin/students/show', [
             'student' => [...$student->only('id', 'name', 'email'), 'joined' => $student->created_at->toDateString()],
+            'profile' => $profile ? [
+                ...$profile->only('phone', 'gender', 'district', 'qualification'),
+                'date_of_birth' => $profile->date_of_birth->toDateString(),
+                'age' => (int) $profile->date_of_birth->diffInYears(now()),
+            ] : null,
+            'exams' => $student->targetExams()->orderBy('name')->get(['exams.id', 'exams.name', 'exams.slug'])
+                ->map(fn ($exam) => [
+                    ...$exam->only('id', 'name', 'slug'),
+                    'content_url' => $request->user()->can('manage-exams') ? route('admin.exams.content', $exam->id) : null,
+                ]),
+            'activity' => [
+                'last_active' => $attempts[0]['submitted_at'] ?? null,
+                'doubts' => $student->doubts()->count(),
+                'open_doubts' => $student->doubts()->where('status', Doubt::OPEN)->count(),
+                'doubts_url' => $request->user()->can('manage-doubts') ? route('admin.doubts.index', ['status' => 'all', 'search' => $student->name]) : null,
+                'saved_materials' => $student->savedMaterials()->count(),
+            ],
             'overview' => $stats->overview(),
-            'attempts' => $stats->attempts(),
+            'subjects' => $stats->subjectBreakdown(),
+            'byDifficulty' => $stats->byDifficulty(),
+            'trend' => array_reverse(array_slice($attempts, 0, 10)),
+            'attempts' => $attempts,
             'bands' => Setting::resultBands(),
         ]);
     }

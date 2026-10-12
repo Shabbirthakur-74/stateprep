@@ -1,11 +1,21 @@
-import InputError from '@/components/input-error';
+import { AuthField } from '@/components/auth-field';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import {
+    confirmationError,
+    emailError,
+    nameError,
+    newPasswordError,
+    normalizeEmail,
+    passwordChecklist,
+    passwordError,
+    useClientValidation,
+} from '@/lib/auth-validation';
+import { cn } from '@/lib/utils';
 import { useForm } from '@inertiajs/react';
-import { LoaderCircle } from 'lucide-react';
+import { Check, Circle, LoaderCircle } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
 export type AuthSheetMode = 'login' | 'register';
@@ -18,42 +28,54 @@ interface Props {
 }
 
 function LoginForm({ onSwitch }: { onSwitch: () => void }) {
-    const { data, setData, post, processing, errors, reset } = useForm({ email: '', password: '', remember: false as boolean });
+    const { data, setData, post, processing, errors, reset, clearErrors, transform } = useForm({
+        email: '',
+        password: '',
+        remember: false as boolean,
+    });
+    const { errorFor, touch, check } = useClientValidation(
+        { email: emailError(data.email), password: passwordError(data.password) },
+        { email: 'sheet-email', password: 'sheet-password' },
+    );
+
+    const change = (field: 'email' | 'password', value: string) => {
+        setData(field, value);
+        clearErrors(field);
+    };
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
+        if (!check()) return;
+        transform((d) => ({ ...d, email: normalizeEmail(d.email) }));
         post(route('login'), { preserveState: 'errors', preserveScroll: true, onFinish: () => reset('password') });
     };
 
     return (
-        <form className="grid gap-5" onSubmit={submit}>
-            <div className="grid gap-2">
-                <Label htmlFor="sheet-email">Email address</Label>
-                <Input
-                    id="sheet-email"
-                    type="email"
-                    required
-                    autoFocus
-                    autoComplete="email"
-                    value={data.email}
-                    onChange={(e) => setData('email', e.target.value)}
-                    placeholder="email@example.com"
-                />
-                <InputError message={errors.email} />
-            </div>
-            <div className="grid gap-2">
-                <Label htmlFor="sheet-password">Password</Label>
-                <Input
-                    id="sheet-password"
-                    type="password"
-                    required
-                    autoComplete="current-password"
-                    value={data.password}
-                    onChange={(e) => setData('password', e.target.value)}
-                    placeholder="Password"
-                />
-                <InputError message={errors.password} />
-            </div>
+        <form className="grid gap-5" onSubmit={submit} noValidate>
+            <AuthField
+                id="sheet-email"
+                label="Email address"
+                type="email"
+                inputMode="email"
+                autoFocus
+                autoComplete="email"
+                value={data.email}
+                onChange={(e) => change('email', e.target.value)}
+                onBlur={() => touch('email')}
+                placeholder="email@example.com"
+                error={errorFor('email') ?? errors.email}
+            />
+            <AuthField
+                id="sheet-password"
+                label="Password"
+                type="password"
+                autoComplete="current-password"
+                value={data.password}
+                onChange={(e) => change('password', e.target.value)}
+                onBlur={() => touch('password')}
+                placeholder="Password"
+                error={errorFor('password') ?? errors.password}
+            />
             <div className="flex items-center gap-3">
                 <Checkbox id="sheet-remember" checked={data.remember} onCheckedChange={(checked) => setData('remember', checked === true)} />
                 <Label htmlFor="sheet-remember">Remember me</Label>
@@ -72,73 +94,96 @@ function LoginForm({ onSwitch }: { onSwitch: () => void }) {
     );
 }
 
+type RegisterField = 'name' | 'email' | 'password' | 'password_confirmation';
+
 function RegisterForm({ onSwitch }: { onSwitch: () => void }) {
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, post, processing, errors, reset, clearErrors, transform } = useForm({
         name: '',
         email: '',
         password: '',
         password_confirmation: '',
     });
+    const { errorFor, touch, check } = useClientValidation<RegisterField>(
+        {
+            name: nameError(data.name),
+            email: emailError(data.email),
+            password: newPasswordError(data.password),
+            password_confirmation: confirmationError(data.password, data.password_confirmation),
+        },
+        { name: 'sheet-name', email: 'sheet-reg-email', password: 'sheet-reg-password', password_confirmation: 'sheet-reg-confirm' },
+    );
+
+    const change = (field: RegisterField, value: string) => {
+        setData(field, value);
+        clearErrors(field);
+    };
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
+        if (!check()) return;
+        transform((d) => ({ ...d, name: d.name.trim().replace(/\s+/g, ' '), email: normalizeEmail(d.email) }));
         post(route('register'), { preserveState: 'errors', preserveScroll: true, onFinish: () => reset('password', 'password_confirmation') });
     };
 
     return (
-        <form className="grid gap-5" onSubmit={submit}>
-            <div className="grid gap-2">
-                <Label htmlFor="sheet-name">Name</Label>
-                <Input
-                    id="sheet-name"
-                    required
-                    autoFocus
-                    autoComplete="name"
-                    value={data.name}
-                    onChange={(e) => setData('name', e.target.value)}
-                    placeholder="Full name"
-                />
-                <InputError message={errors.name} />
-            </div>
-            <div className="grid gap-2">
-                <Label htmlFor="sheet-reg-email">Email address</Label>
-                <Input
-                    id="sheet-reg-email"
-                    type="email"
-                    required
-                    autoComplete="email"
-                    value={data.email}
-                    onChange={(e) => setData('email', e.target.value)}
-                    placeholder="email@example.com"
-                />
-                <InputError message={errors.email} />
-            </div>
-            <div className="grid gap-2">
-                <Label htmlFor="sheet-reg-password">Password</Label>
-                <Input
+        <form className="grid gap-5" onSubmit={submit} noValidate>
+            <AuthField
+                id="sheet-name"
+                label="Name"
+                autoFocus
+                autoComplete="name"
+                value={data.name}
+                onChange={(e) => change('name', e.target.value)}
+                onBlur={() => touch('name')}
+                placeholder="Full name"
+                error={errorFor('name') ?? errors.name}
+            />
+            <AuthField
+                id="sheet-reg-email"
+                label="Email address"
+                type="email"
+                inputMode="email"
+                autoComplete="email"
+                value={data.email}
+                onChange={(e) => change('email', e.target.value)}
+                onBlur={() => touch('email')}
+                placeholder="email@example.com"
+                error={errorFor('email') ?? errors.email}
+            />
+            <div className="grid gap-1.5">
+                <AuthField
                     id="sheet-reg-password"
+                    label="Password"
                     type="password"
-                    required
                     autoComplete="new-password"
                     value={data.password}
-                    onChange={(e) => setData('password', e.target.value)}
+                    onChange={(e) => change('password', e.target.value)}
+                    onBlur={() => touch('password')}
                     placeholder="Password"
+                    error={errorFor('password') ?? errors.password}
                 />
-                <InputError message={errors.password} />
+                <ul className="grid gap-1 text-xs" aria-label="Password requirements">
+                    {passwordChecklist(data.password).map(({ label, met }) => (
+                        <li
+                            key={label}
+                            className={cn('flex items-center gap-1.5', met ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground')}
+                        >
+                            {met ? <Check className="size-3.5" /> : <Circle className="size-3.5" />} {label}
+                        </li>
+                    ))}
+                </ul>
             </div>
-            <div className="grid gap-2">
-                <Label htmlFor="sheet-reg-confirm">Confirm password</Label>
-                <Input
-                    id="sheet-reg-confirm"
-                    type="password"
-                    required
-                    autoComplete="new-password"
-                    value={data.password_confirmation}
-                    onChange={(e) => setData('password_confirmation', e.target.value)}
-                    placeholder="Confirm password"
-                />
-                <InputError message={errors.password_confirmation} />
-            </div>
+            <AuthField
+                id="sheet-reg-confirm"
+                label="Confirm password"
+                type="password"
+                autoComplete="new-password"
+                value={data.password_confirmation}
+                onChange={(e) => change('password_confirmation', e.target.value)}
+                onBlur={() => touch('password_confirmation')}
+                placeholder="Confirm password"
+                error={errorFor('password_confirmation') ?? errors.password_confirmation}
+            />
             <Button type="submit" className="w-full" disabled={processing}>
                 {processing && <LoaderCircle className="size-4 animate-spin" />}
                 Create account

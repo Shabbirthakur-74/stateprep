@@ -33,7 +33,7 @@ test('a super admin can add a team member with chosen access', function () {
     $this->actingAs(User::factory()->superAdmin()->create());
 
     $this->post('/admin/team', [
-        'name' => 'Content Editor', 'email' => 'editor@example.com', 'password' => 'secret-pass-123',
+        'name' => 'Content Editor', 'email' => 'editor@example.com', 'password' => 'Secret-pass-123',
         'role' => 'staff', 'permissions' => ['manage-questions', 'manage-tests'],
     ])->assertRedirect('/admin/team');
 
@@ -44,7 +44,7 @@ test('a super admin can add a team member with chosen access', function () {
 
     // The new member can sign in through the admin login.
     auth()->logout();
-    $this->post('/admin/login', ['email' => 'editor@example.com', 'password' => 'secret-pass-123'])->assertRedirect('/admin/dashboard');
+    $this->post('/admin/login', ['email' => 'editor@example.com', 'password' => 'Secret-pass-123'])->assertRedirect('/admin/dashboard');
 });
 
 test('a super admin can change what a member can access', function () {
@@ -70,7 +70,7 @@ test('super admins cannot demote or delete themselves', function () {
 test('team members cannot manage the team, even with every section', function () {
     $this->actingAs(User::factory()->staff()->create());
 
-    $this->post('/admin/team', ['name' => 'X', 'email' => 'x@example.com', 'password' => 'secret-pass-123', 'role' => 'super_admin'])->assertForbidden();
+    $this->post('/admin/team', ['name' => 'X', 'email' => 'x@example.com', 'password' => 'Secret-pass-123', 'role' => 'super_admin'])->assertForbidden();
 });
 
 test('the team pages never edit a student account', function () {

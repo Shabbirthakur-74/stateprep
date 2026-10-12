@@ -1,0 +1,210 @@
+{
+    "_about": "Sample inputs and the exact message expected for each (null = valid). The server rules (App\\Rules) and the browser checks (resources/js/lib/auth-validation.ts, profile-validation.ts) must both give these answers. Date of birth cases use \"_today\" as the current date.",
+    "email": [
+        [
+            "",
+            "Enter your email address."
+        ],
+        [
+            "   ",
+            "Enter your email address."
+        ],
+        [
+            "asha",
+            "Enter a valid email address, like name@example.com."
+        ],
+        [
+            "asha@",
+            "Enter a valid email address, like name@example.com."
+        ],
+        [
+            "asha@gmail",
+            "Enter a valid email address, like name@example.com."
+        ],
+        [
+            "asha @gmail.com",
+            "An email address cannot contain spaces."
+        ],
+        [
+            "asha@gmail.c",
+            "Enter a valid email address, like name@example.com."
+        ],
+        [
+            "Asha.Sharma@Gmail.com",
+            null
+        ],
+        [
+            " a@b.in ",
+            null
+        ],
+        [
+            "x@sub.domain.co.in",
+            null
+        ]
+    ],
+    "name": [
+        [
+            "",
+            "Enter your name."
+        ],
+        [
+            " ",
+            "Enter your name."
+        ],
+        [
+            "A",
+            "Your name must be at least 2 characters."
+        ],
+        [
+            "Asha",
+            null
+        ],
+        [
+            "R. K. Sharma",
+            null
+        ],
+        [
+            "D'Souza",
+            null
+        ],
+        [
+            "Anne-Marie",
+            null
+        ],
+        [
+            "आशा शर्मा",
+            null
+        ],
+        [
+            "Asha123",
+            "Use letters only (spaces, dots, apostrophes and hyphens are fine)."
+        ],
+        [
+            "<script>",
+            "Use letters only (spaces, dots, apostrophes and hyphens are fine)."
+        ],
+        [
+            ".Asha",
+            "Use letters only (spaces, dots, apostrophes and hyphens are fine)."
+        ]
+    ],
+    "password": [
+        [
+            "",
+            "Choose a password."
+        ],
+        [
+            "         ",
+            "The password cannot be only spaces."
+        ],
+        [
+            "Ab1!",
+            "The password must be at least 8 characters."
+        ],
+        [
+            "password1!",
+            "The password must contain at least one capital letter."
+        ],
+        [
+            "Password!!",
+            "The password must contain at least one number."
+        ],
+        [
+            "Password12",
+            "The password must contain at least one special character, like ! @ # $ %."
+        ],
+        [
+            "Password 12",
+            "The password must contain at least one special character, like ! @ # $ %."
+        ],
+        [
+            "Password@12",
+            null
+        ],
+        [
+            "Shimla#2026",
+            null
+        ],
+        [
+            "MY-PASS-123",
+            null
+        ]
+    ],
+    "phone": [
+        [
+            "",
+            "Enter your mobile number."
+        ],
+        [
+            "98765abc10",
+            "The mobile number can only contain digits."
+        ],
+        [
+            "12345",
+            "Enter a valid 10-digit mobile number starting with 6, 7, 8 or 9."
+        ],
+        [
+            "5876543210",
+            "Enter a valid 10-digit mobile number starting with 6, 7, 8 or 9."
+        ],
+        [
+            "98765432101",
+            "Enter a valid 10-digit mobile number starting with 6, 7, 8 or 9."
+        ],
+        [
+            "9876543210",
+            null
+        ],
+        [
+            "+91 98765-43210",
+            null
+        ],
+        [
+            "098765 43210",
+            null
+        ],
+        [
+            "(987) 654 3210",
+            null
+        ]
+    ],
+    "_today": "2026-10-12",
+    "date_of_birth": [
+        [
+            "",
+            "Enter your date of birth."
+        ],
+        [
+            "12/05/2004",
+            "Enter a valid date of birth."
+        ],
+        [
+            "2004-02-30",
+            "Enter a valid date of birth."
+        ],
+        [
+            "2027-01-01",
+            "The date of birth cannot be in the future."
+        ],
+        [
+            "2014-10-13",
+            "You must be at least 12 years old."
+        ],
+        [
+            "2014-10-12",
+            null
+        ],
+        [
+            "2004-05-12",
+            null
+        ],
+        [
+            "1946-10-12",
+            null
+        ],
+        [
+            "1945-10-11",
+            "Enter a valid date of birth."
+        ]
+    ]
+}

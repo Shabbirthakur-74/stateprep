@@ -6,6 +6,7 @@ use App\Enums\Permission;
 use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Rules\StrongPassword;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -109,7 +110,8 @@ class TeamController extends Controller
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique('users')->ignore($member)],
-            'password' => [$member ? 'nullable' : 'required', 'string', Password::defaults()],
+            // Same password rules as student sign-up. When editing, an empty password keeps the current one.
+            'password' => $member ? ['nullable', new StrongPassword(required: false)] : [new StrongPassword],
             'role' => ['required', Rule::in(array_map(fn ($r) => $r->value, Role::staff()))],
             'permissions' => ['nullable', 'array'],
             'permissions.*' => [Rule::enum(Permission::class)],

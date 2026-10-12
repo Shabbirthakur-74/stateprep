@@ -40,6 +40,7 @@ test('every student screen loads', function (string $url, string $component) {
     ['/student/study-material', 'student/study-material'],
     ['/student/attempted-tests', 'student/attempted-tests'],
     ['/student/performance', 'student/performance'],
+    ['/student/settings', 'student/settings'],
     ['/student/personalised-tests', 'student/coming-soon'],
     ['/student/doubts', 'student/doubts/index'],
     ['/student/live-session', 'student/coming-soon'],

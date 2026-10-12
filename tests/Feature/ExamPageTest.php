@@ -72,7 +72,7 @@ test('a visitor who presses buy is sent to sign up, then straight to payment', f
 
     $this->get("/exams/{$exam->slug}?auth=register")->assertInertia(fn ($page) => $page->where('authPrompt', 'register'));
 
-    $this->post('/register', ['name' => 'Asha', 'email' => 'asha@example.com', 'password' => 'password', 'password_confirmation' => 'password'])
+    $this->post('/register', ['name' => 'Asha', 'email' => 'asha@example.com', 'password' => 'Password@12', 'password_confirmation' => 'Password@12'])
         ->assertRedirect("/exams/{$exam->slug}/buy");
 
     $this->get("/exams/{$exam->slug}/buy")->assertRedirect("/student/checkout/{$exam->slug}");

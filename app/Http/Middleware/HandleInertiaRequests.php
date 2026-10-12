@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\StudentProfile;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -49,6 +50,8 @@ class HandleInertiaRequests extends Middleware
                     'permissions' => array_map(fn ($p) => $p->value, $request->user()->grantedPermissions()),
                 ] : null,
             ],
+            // A new student's details form, with its choices, until it has been filled in.
+            'profilePrompt' => fn () => $request->user()?->needsProfile() ? StudentProfile::options() : null,
             // Team answers the student has not opened yet, for the Doubts badge.
             'doubtsUnread' => fn () => $request->user()?->isStudent() ? $request->user()->doubts()->unreadByStudent()->count() : 0,
             'flash' => [

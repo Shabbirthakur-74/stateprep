@@ -76,9 +76,10 @@ export default function TeamForm({ permissions, member }: { permissions: Permiss
                             htmlFor="password"
                             error={errors.password}
                             hint={
-                                member
-                                    ? 'Leave empty to keep the current password.'
-                                    : 'Share it with them; they can sign in from the Admin Login link.'
+                                (member
+                                    ? 'Leave empty to keep the current password. '
+                                    : 'Share it with them; they can sign in from the Admin Login link. ') +
+                                'At least 8 characters, with a capital letter, a number and a special character.'
                             }
                             className="sm:col-span-2"
                         >

@@ -85,7 +85,7 @@ function Catalogue({ exams }: { exams: ExamSummary[] }) {
     );
 }
 
-export default function MyExams({ exams }: { exams: ExamSummary[] }) {
+export default function MyExams({ exams, targets }: { exams: ExamSummary[]; targets: string[] }) {
     const [tab, setTab] = useState<(typeof tabs)[number]>('All');
 
     return (
@@ -97,7 +97,8 @@ export default function MyExams({ exams }: { exams: ExamSummary[] }) {
                     description="Access, organise and accelerate your Himachal Pradesh state examination preparation."
                     aside={
                         <span className="bg-card inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm">
-                            <Target className="size-4 text-indigo-600" /> No exam target set
+                            <Target className="size-4 text-indigo-600" />{' '}
+                            {targets.length ? `Preparing for ${targets.map((t) => t.replace(/\s*\(.*\)\s*$/, '')).join(', ')}` : 'No exam target set'}
                         </span>
                     }
                 />

@@ -91,6 +91,49 @@ class StudentStats
     }
 
     /**
+     * Every subject the student has answered questions in, weakest first, each with its topics (weakest first).
+     *
+     * @return list<array{subject: string, answered: int, correct: int, accuracy: float, topics: list<array{topic: string, answered: int, correct: int, accuracy: float}>}>
+     */
+    public function subjectBreakdown(): array
+    {
+        $rows = $this->answers()
+            ->leftJoin('subjects', 'subjects.id', '=', 'questions.subject_id')
+            ->leftJoin('topics', 'topics.id', '=', 'questions.topic_id')
+            ->selectRaw('subjects.name as subject, topics.name as topic, COUNT(*) as answered, SUM(CASE WHEN ans.is_correct = 1 THEN 1 ELSE 0 END) as correct')
+            ->groupBy('subjects.name', 'topics.name')
+            ->get();
+
+        $accuracy = fn (int $correct, int $answered) => $answered ? round($correct * 100 / $answered, 1) : 0.0;
+
+        return $rows->groupBy(fn ($row) => $row->subject ?? 'Removed subject')
+            ->map(function ($topics, $subject) use ($accuracy) {
+                $answered = (int) $topics->sum('answered');
+                $correct = (int) $topics->sum('correct');
+
+                return [
+                    'subject' => $subject,
+                    'answered' => $answered,
+                    'correct' => $correct,
+                    'accuracy' => $accuracy($correct, $answered),
+                    'topics' => $topics
+                        ->map(fn ($t) => [
+                            'topic' => $t->topic ?? 'No topic',
+                            'answered' => (int) $t->answered,
+                            'correct' => (int) $t->correct,
+                            'accuracy' => $accuracy((int) $t->correct, (int) $t->answered),
+                        ])
+                        ->sortBy('accuracy')
+                        ->values()
+                        ->all(),
+                ];
+            })
+            ->sortBy('accuracy')
+            ->values()
+            ->all();
+    }
+
+    /**
      * Accuracy per difficulty level.
      *
      * @return array<string, float|null>

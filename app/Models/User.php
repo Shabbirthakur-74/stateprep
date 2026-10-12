@@ -9,6 +9,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -61,6 +62,30 @@ class User extends Authenticatable
     public function testAttempts(): HasMany
     {
         return $this->hasMany(TestAttempt::class);
+    }
+
+    /**
+     * Details given right after sign-up (phone, date of birth, district…). Missing until the student fills them in.
+     */
+    public function profile(): HasOne
+    {
+        return $this->hasOne(StudentProfile::class);
+    }
+
+    /**
+     * Exams the student says they are preparing for.
+     */
+    public function targetExams(): BelongsToMany
+    {
+        return $this->belongsToMany(Exam::class);
+    }
+
+    /**
+     * Students fill in their details once, right after signing up.
+     */
+    public function needsProfile(): bool
+    {
+        return $this->isStudent() && $this->profile()->doesntExist();
     }
 
     public function doubts(): HasMany
